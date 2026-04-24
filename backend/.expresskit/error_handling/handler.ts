@@ -1,0 +1,29 @@
+import { Request, Response, NextFunction } from "express";
+
+/**
+ * ExpressKit Global Error Handler v1
+ * Centralized, opinionated, production-safe
+ */
+export function errorHandler(
+  err: any,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+): void {
+  const status = err.status || err.statusCode || 500;
+
+  const payload = {
+    success: false,
+    error: {
+      message:
+        status === 500
+          ? "Internal Server Error"
+          : err.message || "Something went wrong",
+      ...(process.env.NODE_ENV !== "production" && {
+        stack: err.stack,
+      }),
+    },
+  };
+
+  res.status(status).json(payload);
+}
